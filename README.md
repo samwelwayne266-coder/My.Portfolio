@@ -45,3 +45,6 @@ cd portfolio
 
 # Open the project
 open index.html
+```
+### Developed with 💙 by Samwel Wayne
+"Building tools that solve real problems with a high-end aesthetic."
