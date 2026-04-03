@@ -875,36 +875,98 @@ let interval = null;
 
 function decodeEffect() {
   const target = document.getElementById("decode-name");
+  if(!target) return; // Guard clause
+  
+  const finalValue = target.dataset.value;
   let iteration = 0;
   
+  // Clear any existing intervals
   clearInterval(interval);
   
   interval = setInterval(() => {
-    target.innerText = target.innerText
+    target.innerText = finalValue
       .split("")
       .map((letter, index) => {
-        if(index < iteration) {
-          return target.dataset.value[index];
-        }
-      
-        return letters[Math.floor(Math.random() * 41)]
+        if(index < iteration) return finalValue[index];
+        return letters[Math.floor(Math.random() * letters.length)];
       })
       .join("");
     
-    if(iteration >= target.dataset.value.length){ 
-      clearInterval(interval);
-    }
-    
-    iteration += 1 / 3; // Speed of decoding (increase for faster)
+    if(iteration >= finalValue.length) clearInterval(interval);
+    iteration += 1 / 3;
   }, 30);
+} 
+
+/* ── SYNCHRONIZED KERNEL BOOT ── */
+const bootMessages = [
+  "Initializing SamwelOS Kernel...",
+  "Loading CPU Microcode...",
+  "Mounting /dev/github_api...",
+  "Checking Network Protocols...",
+  "Verifying User Permissions...",
+  "System Assets Loaded.",
+  "Launching SamwelOS GUI..."
+];
+
+// Helper to wait for the browser to be "Ready"
+const waitForSiteLoad = () => {
+  return new Promise(resolve => {
+    if (document.readyState === 'complete') resolve();
+    else window.addEventListener('load', resolve);
+  });
+};
+
+async function startSequence() {
+  const textContainer = document.getElementById('boot-text');
+  const progressBar = document.getElementById('boot-progress');
+  const loader = document.getElementById('boot-loader');
+  
+  // 1. Run through the fake boot messages
+  for (let i = 0; i < bootMessages.length; i++) {
+    const p = document.createElement('p');
+    p.innerText = ` [  OK  ] ${bootMessages[i]}`;
+    textContainer.appendChild(p);
+    
+    // Update progress bar based on message index
+    let progress = ((i + 1) / bootMessages.length) * 70; // Fill up to 70%
+    progressBar.style.width = progress + "%";
+    
+    await new Promise(r => setTimeout(r, 250)); // Fast typing feel
+  }
+
+  // 2. NOW wait for the actual browser "Load" event
+  await waitForSiteLoad();
+  
+  // 3. Complete the bar to 100%
+  progressBar.style.width = "100%";
+  
+  // 4. Final pause for dramatic effect
+  await new Promise(r => setTimeout(r, 400));
+
+  // 5. Fade out and trigger the Decryption effect
+  loader.style.opacity = "0";
+  setTimeout(() => {
+    loader.style.display = "none";
+    
+    // Trigger the name decryption ONLY after loader is gone
+    if (typeof decodeEffect === 'function') {
+      decodeEffect(); 
+    }
+  }, 800);
 }
 
-// Run on page load
-window.addEventListener('load', decodeEffect);
-
-// Optional: Run again when hovering over the name
-document.getElementById("decode-name").onmouseover = decodeEffect;  
-
+// Start the sequence as soon as the script parses
+startSequence();  
 </script>
 </body>
+<div id="boot-loader" style="position:fixed; inset:0; background:#020617; z-index:10000; display:flex; align-items:center; justify-content:center; font-family:'Consolas', monospace; color:#7ee787; padding:20px; transition: opacity 0.8s ease;">
+  <div style="max-width:500px; width:100%;">
+    <div id="boot-text" style="font-size:14px; line-height:1.5; margin-bottom: 20px; min-height: 150px;"></div>
+    <div style="width: 100%; height: 2px; background: rgba(255,255,255,0.1); position: relative;">
+      <div id="boot-progress" style="width: 0%; height: 100%; background: var(--blue); transition: width 0.2s ease; box-shadow: 0 0 10px var(--blue);"></div>
+    </div>
+    <div style="font-size: 10px; color: var(--dim); margin-top: 8px; text-transform: uppercase; letter-spacing: 1px;">System Initializing...</div>
+  </div>
+</div>
+  
 </html>
