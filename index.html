@@ -518,6 +518,58 @@ footer p{color:var(--dim);font-size:13px}
   text-align: left;
   white-space: nowrap;
 }  
+
+/* Window Container Base */
+.window {
+  position: absolute;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  min-width: 300px;
+}
+
+.window-header {
+  padding: 8px 12px;
+  background: rgba(30, 41, 59, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: grab;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.window-controls { display: flex; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+
+/* Spec Sheet (Fixed/Non-Draggable) */
+#spec-sheet {
+  top: 100px; right: 40px;
+  width: 280px;
+  font-size: 13px;
+  position: fixed; /* Keep it pinned as requested */
+}
+
+/* Terminal (Draggable) */
+#terminal-window {
+  top: 40%; left: 10%;
+  width: 500px;
+  height: 300px;
+}
+
+.terminal-body {
+  padding: 15px;
+  font-family: 'Consolas', monospace;
+  color: #c9d1d9;
+  flex-grow: 1;
+  overflow-y: auto;
+  background: rgba(0,0,0,0.3);
+}  
 </style>
 </head>
 <body>
@@ -660,6 +712,39 @@ footer p{color:var(--dim);font-size:13px}
     </a>
   </div>
 </section>
+
+<div id="terminal-window" class="window">
+  <div class="window-header" id="terminal-header">
+    <span style="font-size: 12px; color: var(--muted);"><i class="fas fa-terminal"></i> samwel_wayne_os.exe</span>
+    <div class="window-controls">
+      <div class="dot" style="background:#ffbd2e"></div>
+      <div class="dot" style="background:#27c93f"></div>
+    </div>
+  </div>
+  <div class="terminal-body" id="terminal-content">
+    <p style="color: #7ee787;">[SYSTEM] SamwelOS Kernel 1.0.4 loaded.</p>
+    <p>Type 'help' to see available commands.</p>
+    <div id="terminal-history"></div>
+    <div style="display:flex;">
+      <span style="color:#7ee787;">user@samwel:~$ &nbsp;</span>
+      <input type="text" id="terminal-input" autofocus style="background:transparent; border:none; color:white; outline:none; flex-grow:1; font-family:inherit;">
+    </div>
+  </div>
+</div>
+
+<div id="spec-sheet" class="window">
+  <div class="window-header">
+    <span><i class="fas fa-info-circle"></i> System Properties</span>
+  </div>
+  <div style="padding: 15px; line-height: 2;">
+    <div style="display:flex; justify-content:space-between"><span>OS:</span> <span style="color:var(--blue2)">SamwelOS v2.6</span></div>
+    <div style="display:flex; justify-content:space-between"><span>Host:</span> <span style="color:var(--blue2)">GitHub_Pages</span></div>
+    <div style="display:flex; justify-content:space-between"><span>Shell:</span> <span style="color:var(--blue2)">Bash/Node.js</span></div>
+    <div style="display:flex; justify-content:space-between"><span>Uptime:</span> <span id="uptime" style="color:#22c55e">0s</span></div>
+    <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:10px 0;">
+    <div style="font-size:11px; color:var(--dim)">Network: 254.115.39.790 (Encrypted)</div>
+  </div>
+</div>  
 
 <!-- FOOTER -->
 <footer>
@@ -854,6 +939,73 @@ window.addEventListener('load', decodeEffect);
 
 // Optional: Run again when hovering over the name
 document.getElementById("decode-name").onmouseover = decodeEffect;  
+
+/* ── MAKE TERMINAL DRAGGABLE ── */
+dragElement(document.getElementById("terminal-window"));
+
+function dragElement(elmnt) {
+  let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  const header = document.getElementById(elmnt.id + "-header");
+  if (header) { header.onmousedown = dragMouseDown; }
+
+  function dragMouseDown(e) {
+    e.preventDefault();
+    pos3 = e.clientX; pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    document.onmousemove = elementDrag;
+    elmnt.style.cursor = "grabbing";
+  }
+
+  function elementDrag(e) {
+    e.preventDefault();
+    pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
+    pos3 = e.clientX; pos4 = e.clientY;
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+
+  function closeDragElement() {
+    document.onmouseup = null; document.onmousemove = null;
+    elmnt.style.cursor = "auto";
+  }
+}
+
+/* ── TERMINAL LOGIC ── */
+const input = document.getElementById('terminal-input');
+const history = document.getElementById('terminal-history');
+
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const cmd = input.value.toLowerCase();
+    const line = document.createElement('div');
+    line.innerHTML = `<span style="color:#7ee787;">user@samwel:~$</span> ${cmd}`;
+    history.appendChild(line);
+
+    const response = document.createElement('div');
+    response.style.marginBottom = "10px";
+    
+    if (cmd === 'help') {
+      response.innerText = "Available commands: bio, projects, contact, clear";
+    } else if (cmd === 'bio') {
+      response.innerText = "Samwel Wayne: Developer focused on OS architecture & Node.js.";
+    } else if (cmd === 'clear') {
+      history.innerHTML = "";
+    } else {
+      response.innerText = `Command '${cmd}' not found.`;
+    }
+    
+    history.appendChild(response);
+    input.value = "";
+    document.getElementById('terminal-content').scrollTop = 9999;
+  }
+});
+
+/* ── UPTIME COUNTER ── */
+let seconds = 0;
+setInterval(() => {
+  seconds++;
+  document.getElementById('uptime').innerText = seconds + "s";
+}, 1000);  
 </script>
 </body>
 </html>
