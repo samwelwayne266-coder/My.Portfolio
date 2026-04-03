@@ -693,20 +693,17 @@ footer p{color:var(--dim);font-size:13px}
   </div>
 
   <div class="social-row reveal">
-    <a href="https://github.com/cyrilxplorer" target="_blank" class="soc-btn">
+    <a href="https://github.com/samwelwayne266-coder" target="_blank" class="soc-btn">
       <i class="fab fa-github"></i> GitHub
     </a>
-    <a href="https://instagram.com/cyrilxplorer" target="_blank" class="soc-btn">
+    <a href="https://instagram.com/samwel.wayne" target="_blank" class="soc-btn">
       <i class="fab fa-instagram"></i> Instagram
     </a>
-    <a href="mailto:cyrilkiprotich8@gmail.com" class="soc-btn">
+    <a href="mailto:samwelplays@gmail.com" class="soc-btn">
       <i class="fas fa-envelope"></i> Email
     </a>
-    <a href="https://wa.me/254115397390" target="_blank" class="soc-btn">
+    <a href="https://wa.me/25418429870" target="_blank" class="soc-btn">
       <i class="fab fa-whatsapp"></i> WhatsApp
-    </a>
-    <a href="https://linkedin.com" target="_blank" class="soc-btn">
-      <i class="fab fa-linkedin"></i> LinkedIn
     </a>
   </div>
 </section>
@@ -843,19 +840,6 @@ document.querySelectorAll('.projects-grid .project-card, .social-row .soc-btn').
   el.style.transitionDelay = (i*.1)+'s';
 });
 
-  /* ── FETCH GITHUB REPOS ── */
-/* ── THEME FUNCTIONS ── */
-function setAccent(primary, secondary) {
-  document.documentElement.style.setProperty('--blue', primary);
-  document.documentElement.style.setProperty('--cyan', secondary);
-  document.documentElement.style.setProperty('--blue2', primary);
-}
-
-function toggleTheme() {
-  document.body.classList.toggle('light-mode');
-}
-
-/* ── IMPROVED GITHUB FETCH ── */
 async function fetchRepos() {
   const container = document.getElementById('gh-projects');
   
