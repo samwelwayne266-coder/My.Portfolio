@@ -907,7 +907,7 @@ async function fetchRepos() {
   };
 
   try {
-    const response = await fetch('https://api.github.com/users/samwelwayne266-coder/repos?sort=updated');
+    const response = await fetch('https://api.github.com/users/itiswayneee/repos?sort=updated');
     if (!response.ok) throw new Error("Connection Refused");
     
     allProjects = await response.json();
